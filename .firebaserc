@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "danotes-ca54a": {
+      "hosting": {
+        "da-keep": [
+          "danotes-ca54a"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "danotes-ca54a"
+  }
+}
