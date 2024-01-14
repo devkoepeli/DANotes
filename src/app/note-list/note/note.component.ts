@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Note } from '../../interfaces/note.interface';
 import { NoteListService } from '../../firebase-services/note-list.service'
 
@@ -7,12 +7,16 @@ import { NoteListService } from '../../firebase-services/note-list.service'
   templateUrl: './note.component.html',
   styleUrls: ['./note.component.scss']
 })
-export class NoteComponent {
+export class NoteComponent implements OnInit {
   @Input() note!:Note;
   edit = false;
   hovered = false;
   
   constructor(private noteService: NoteListService){}
+
+  ngOnInit(): void {
+    // console.log(this.note);
+  }
 
   changeMarkedStatus(){
     this.note.marked = !this.note.marked;
