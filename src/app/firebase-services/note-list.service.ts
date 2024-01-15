@@ -35,6 +35,32 @@ export class NoteListService {
     this.unsubTrash();
   }
 
+  async updateNote(item: Note) {
+    if (item.id != undefined) {
+      const docRef = this.getSingleDocRef(this.getColIdFromNote(item), item.id);
+
+      await updateDoc(docRef, this.getCleanObject(item))
+      .catch(err => console.error('Updating note error: ', err));
+    }
+  }
+
+  getColIdFromNote(item: Note) {
+    if (item.type == 'note') {
+      return 'notes';
+    } else {
+      return 'trash';
+    }
+  }
+
+  getCleanObject(item: Note): {} {
+    return {
+      type: item.type,
+      title: item.title,
+      content: item.content,
+      marked: item.marked
+    }
+  }
+
   getNotesRef() {
     return collection(this.firestore, 'notes');
   }

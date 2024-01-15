@@ -20,6 +20,7 @@ export class NoteComponent implements OnInit {
 
   changeMarkedStatus(){
     this.note.marked = !this.note.marked;
+    this.saveNote();
   }
 
   deleteHovered(){
@@ -50,7 +51,7 @@ export class NoteComponent implements OnInit {
   }
 
   saveNote(){
-    
+    this.noteService.updateNote(this.note);
   }
 
 }
