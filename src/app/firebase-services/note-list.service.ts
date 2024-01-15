@@ -1,5 +1,6 @@
-import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, doc, collectionData, onSnapshot } from '@angular/fire/firestore';
+import { Injectable, inject, OnInit } from '@angular/core';
+import { Firestore, collection, doc, onSnapshot, addDoc, updateDoc } from '@angular/fire/firestore';
+import { AddNoteDialogComponent } from '../add-note-dialog/add-note-dialog.component';
 import { Note } from '../interfaces/note.interface';
 
 @Injectable({
@@ -18,7 +19,16 @@ export class NoteListService {
     this.unsubNotes = this.subNotesList();
 
     this.unsubTrash = this.subTrashList();
-   }
+  }
+
+  async addNote(item: Note) {
+    await addDoc(this.getNotesRef(), item)
+    .then((docRef) => {
+      console.log("Document written with ID: ", docRef.id);
+    }).catch((err) => {
+      console.error('Loading error: ', err);
+    });
+  }
 
   ngOnDestroy() {
     this.unsubNotes();
@@ -48,9 +58,9 @@ export class NoteListService {
 
   subTrashList() {
     return onSnapshot(this.getTrashRef(), (trash) => {
+      this.trashNotes = [];
       trash.forEach(trashNote => {
         this.trashNotes.push(this.setNoteObject(trashNote.data(), trashNote.id));
-        console.log(this.setNoteObject(trashNote.data(), trashNote.id))
       })
     })
   }
@@ -68,7 +78,7 @@ export class NoteListService {
       id: id,
       type: obj.type || 'note',
       title: obj.title || '',
-      content: obj.description || '',
+      content: obj.content || '',
       marked: obj.marked || false
     }
   }

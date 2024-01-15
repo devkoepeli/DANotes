@@ -9,19 +9,26 @@ import { NoteListService } from '../firebase-services/note-list.service'
 })
 export class AddNoteDialogComponent {
   @Output() addDialogClosed: EventEmitter<boolean> = new EventEmitter();
-  title = "";
-  description = "";
+  title = '';
+  description = '';
 
   constructor(private noteService: NoteListService){}
 
   closeDialog() {
-    this.title = "";
-    this.description = "";
+    this.title = '';
+    this.description = '';
     this.addDialogClosed.emit(false);
   }
 
   addNote(){
-    //beachte das closeDialog() zum Schluss kommt, denn es leert die Variablen
+    const note: Note = {
+      type: 'note',
+      title: this.title,
+      content: this.description,
+      marked: false
+    }
+    this.noteService.addNote(note);
+
     this.closeDialog();
   }
 }
