@@ -39,15 +39,32 @@ export class NoteComponent implements OnInit {
   }
 
   moveToTrash(){
-    this.note.type = 'trash';
+    if (this.note.id != undefined) {
+      this.note.type = 'trash';
+      const docId = this.note.id;
+      // delete note id object property only in database to get 4 fields
+      delete this.note.id;
+      this.noteService.addNote(this.note, 'trash');
+      this.noteService.deleteNote('notes', docId);
+    }
   }
 
+  // restore button
   moveToNotes(){
-    this.note.type = 'note';
+    if (this.note.id != undefined) {
+      this.note.type = 'note';
+      const docId = this.note.id;
+      delete this.note.id;
+      this.noteService.addNote(this.note, 'notes');
+      this.noteService.deleteNote('trash', docId)
+    }
   }
 
+  // delete note in the trash
   deleteNote(){
-
+    if (this.note.id != undefined) {
+      this.noteService.deleteNote('trash', this.note.id);
+    }
   }
 
   saveNote(){

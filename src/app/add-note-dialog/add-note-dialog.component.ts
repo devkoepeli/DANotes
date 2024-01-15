@@ -20,14 +20,14 @@ export class AddNoteDialogComponent {
     this.addDialogClosed.emit(false);
   }
 
-  addNote(){
+  addNote(colId: 'notes' | 'trash'){
     const note: Note = {
       type: 'note',
       title: this.title,
       content: this.description,
       marked: false
     }
-    this.noteService.addNote(note);
+    this.noteService.addNote(note, colId);
 
     this.closeDialog();
   }

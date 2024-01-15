@@ -1,5 +1,5 @@
 import { Injectable, inject, OnInit } from '@angular/core';
-import { Firestore, collection, doc, onSnapshot, addDoc, updateDoc } from '@angular/fire/firestore';
+import { Firestore, collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc } from '@angular/fire/firestore';
 import { AddNoteDialogComponent } from '../add-note-dialog/add-note-dialog.component';
 import { Note } from '../interfaces/note.interface';
 
@@ -21,13 +21,22 @@ export class NoteListService {
     this.unsubTrash = this.subTrashList();
   }
 
-  async addNote(item: Note) {
-    await addDoc(this.getNotesRef(), item)
-    .then((docRef) => {
-      console.log("Document written with ID: ", docRef.id);
-    }).catch((err) => {
-      console.error('Loading error: ', err);
-    });
+  async addNote(item: Note, colId: 'notes' | 'trash') {
+    if (colId == 'notes') {
+      await addDoc(this.getNotesRef(), item)
+      .then((docRef) => {
+        console.log("Document written with ID: ", docRef.id);
+      }).catch((err) => {
+        console.error('Loading error: ', err);
+      });
+    } else {
+      await addDoc(this.getTrashRef(), item)
+      .then((docRef) => {
+        console.log("Document written with ID: ", docRef.id);
+      }).catch((err) => {
+        console.error('Loading error: ', err);
+      });
+    }
   }
 
   ngOnDestroy() {
@@ -61,6 +70,11 @@ export class NoteListService {
     }
   }
 
+  async deleteNote(colId: 'notes' | 'trash', docId: string) {
+    await deleteDoc(this.getSingleDocRef(colId, docId))
+    .catch(err => console.error('Note update error: ', err));
+  }
+
   getNotesRef() {
     return collection(this.firestore, 'notes');
   }
@@ -92,7 +106,7 @@ export class NoteListService {
   }
 
 /**
- * setting Note object based on firebase data
+ * setting Note object (id) based on firebase data every time db receives change
  * input note property of NoteComponent has to get right properties assigned to the right property
  * in order to display the correct properties in the view
  * @param obj current List, either "notes" or "trash"

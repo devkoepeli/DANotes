@@ -29,8 +29,8 @@ export class NoteListComponent {
     }
   }
 
-  getList(section: string): Note[] {
-    if (section == 'notes') {
+  getList(): Note[] {
+    if (this.status == 'notes') {
       return this.noteService.normalNotes;
     } else return this.noteService.trashNotes;
   }
