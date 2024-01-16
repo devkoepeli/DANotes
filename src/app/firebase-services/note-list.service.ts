@@ -1,5 +1,5 @@
 import { Injectable, inject, OnInit } from '@angular/core';
-import { Firestore, collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc } from '@angular/fire/firestore';
+import { Firestore, collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc, query, where, limit, orderBy } from '@angular/fire/firestore';
 import { AddNoteDialogComponent } from '../add-note-dialog/add-note-dialog.component';
 import { Note } from '../interfaces/note.interface';
 
@@ -10,15 +10,19 @@ export class NoteListService {
   firestore: Firestore = inject(Firestore);
 
   normalNotes: Note[] = [];
+  normalMarkedNotes: Note[] = [];
   trashNotes: Note[] = [];  
 
   unsubNotes;
+  unsubMarkedNotes;
   unsubTrash;
+  unsubNotesChanges;
 
   constructor() {
     this.unsubNotes = this.subNotesList();
-
+    this.unsubMarkedNotes = this.subMarkedNotesList();
     this.unsubTrash = this.subTrashList();
+    this.unsubNotesChanges = this.showNotesChanges();
   }
 
   async addNote(item: Note, colId: 'notes' | 'trash') {
@@ -41,6 +45,7 @@ export class NoteListService {
 
   ngOnDestroy() {
     this.unsubNotes();
+    this.unsubMarkedNotes();
     this.unsubTrash();
   }
 
@@ -87,11 +92,41 @@ export class NoteListService {
     return doc(collection(this.firestore, colId), docId);
   }
 
+  // first note added in app will have 4 properties with random id generated for db
+  // after fetching from db (this function) the added note has 5 properties with id and will be pushed to array
   subNotesList() {
-    return onSnapshot(this.getNotesRef(), (notes) => {
+    const q = query(this.getNotesRef(), limit(100));
+    return onSnapshot(q, (notes) => {
       this.normalNotes = []; 
       notes.forEach(note => {
         this.normalNotes.push(this.setNoteObject(note.data(), note.id));
+      });
+    });
+  }
+
+  subMarkedNotesList() {
+    const q = query(this.getNotesRef(), where('marked', '==', true), limit(100))
+    return onSnapshot(q, (notes) => {
+      this.normalMarkedNotes = [];
+      notes.forEach(note => {
+        this.normalMarkedNotes.push(this.setNoteObject(note.data(), note.id));
+      });
+    });
+  }
+
+  showNotesChanges() {
+    const q = query(this.getNotesRef(), limit(100));
+    return onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+            console.log('new note: ', change.doc.data());
+        }
+        if (change.type === "modified") {
+            console.log("note updated: ", change.doc.data());
+        }
+        if (change.type === "removed") {
+            console.log("note removed: ", change.doc.data());
+        }
       });
     });
   }
