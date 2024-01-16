@@ -101,6 +101,9 @@ export class NoteListService {
       notes.forEach(note => {
         this.normalNotes.push(this.setNoteObject(note.data(), note.id));
       });
+    },
+    (error) => {
+      alert('Loading data failed, please try again later');
     });
   }
 
